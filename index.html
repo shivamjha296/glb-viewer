@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GLB Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-blob blob-a" aria-hidden="true"></div>
+    <div class="bg-blob blob-b" aria-hidden="true"></div>
+
+    <main class="layout">
+      <section class="panel" aria-label="GLB controls">
+        <h1>GLB Viewer</h1>
+        <p class="subtitle">Upload a .glb file or open one from a share link.</p>
+
+        <label class="subtitle" for="remoteUrl">Open from URL</label>
+        <input id="remoteUrl" type="url" placeholder="https://your-cdn.com/models/file.glb" />
+        <button id="openRemote" class="file-button" type="button">Open URL</button>
+
+        <label class="file-button" for="glbInput">Choose GLB File</label>
+        <input id="glbInput" type="file" accept=".glb,model/gltf-binary" />
+
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Drop GLB file here">
+          Drag and drop your .glb file here
+        </div>
+
+        <p class="status" id="status">No model loaded.</p>
+
+        <ul class="tips">
+          <li>Drag: rotate</li>
+          <li>Scroll or pinch: zoom</li>
+          <li>Double click: reset view</li>
+        </ul>
+      </section>
+
+      <section class="viewer-wrap" aria-label="3D preview">
+        <model-viewer
+          id="viewer"
+          camera-controls
+          touch-action="pan-y"
+          shadow-intensity="1"
+          exposure="1"
+          environment-image="neutral"
+          auto-rotate
+          loading="eager"
+          reveal="auto"
+          alt="GLB 3D preview"
+        ></model-viewer>
+      </section>
+    </main>
+
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
