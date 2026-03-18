@@ -7,7 +7,7 @@ A lightweight frontend app to preview `.glb` models in the browser.
 - File picker for `.glb` files
 - Drag-and-drop `.glb` support
 - Remote `.glb` URL loading
-- Auto-load model from share link query parameter
+- Auto-load model from share link route path (query parameter fallback supported)
 - Interactive 3D camera controls (orbit, pan, zoom)
 - Auto camera framing when a model loads
 - Responsive layout for desktop and mobile
@@ -51,13 +51,21 @@ Every new push to your GitHub default branch will auto-deploy.
 
 ## Share link format
 
-Your viewer can open remote models from a unique URL:
+Primary format (route-based):
+
+```text
+https://your-viewer-domain.com/https%3A%2F%2Fyour-cdn.com%2Foutputs%2Fabc123.glb
+```
+
+Fallback format (query-based, still supported):
 
 ```text
 https://your-viewer-domain.com/?model=https%3A%2F%2Fyour-cdn.com%2Foutputs%2Fabc123.glb
 ```
 
-The `model` parameter must point to an HTTP/HTTPS URL serving a `.glb` file.
+The encoded value must point to an HTTP/HTTPS URL serving a `.glb` file.
+
+
 
 ## Telegram integration flow
 
@@ -68,7 +76,7 @@ The `model` parameter must point to an HTTP/HTTPS URL serving a `.glb` file.
 5. Backend builds viewer link using encoded model URL:
 
 ```text
-viewerLink = https://your-viewer-domain.com/?model=${encodeURIComponent(glbUrl)}
+viewerLink = https://your-viewer-domain.com/${encodeURIComponent(glbUrl)}
 ```
 
 6. Backend sends `viewerLink` back to the Telegram user.

@@ -26,8 +26,13 @@ function clearObjectUrl() {
 }
 
 function setModelSource(src, label) {
-  viewer.src = src;
-  viewer.dismissPoster();
+  // Use an attribute write so the src survives even if the custom element is not upgraded yet.
+  viewer.setAttribute("src", src);
+
+  if (typeof viewer.dismissPoster === "function") {
+    viewer.dismissPoster();
+  }
+
   setStatus(`Loading ${label}...`);
 }
 
@@ -55,12 +60,45 @@ function loadFromFile(file) {
   setModelSource(activeObjectUrl, file.name);
 }
 
-function loadFromUrl(url) {
+function buildRoutePathForModel(url) {
+  return `/${encodeURIComponent(url)}`;
+}
+
+function updateAddressBarWithModel(url) {
+  const nextPath = buildRoutePathForModel(url);
+  const nextUrl = `${nextPath}${window.location.hash}`;
+
+  if (`${window.location.pathname}${window.location.hash}` === nextUrl && !window.location.search) {
+    return;
+  }
+
+  window.history.replaceState({}, "", nextUrl);
+}
+
+function getModelUrlFromRoute() {
+  const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, "");
+
+  if (!rawPath || rawPath.toLowerCase() === "index.html") {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(rawPath);
+  } catch {
+    return null;
+  }
+}
+
+function loadFromUrl(url, { syncRoute = true } = {}) {
   const cleanUrl = url.trim();
 
   if (!isValidGlbUrl(cleanUrl)) {
     setStatus("Please enter a valid http or https model URL.", "error");
     return;
+  }
+
+  if (syncRoute) {
+    updateAddressBarWithModel(cleanUrl);
   }
 
   clearObjectUrl();
@@ -118,10 +156,12 @@ dropzone.addEventListener("keydown", (event) => {
 
 const urlParams = new URLSearchParams(window.location.search);
 const sharedModelUrl = urlParams.get("model");
+const routeModelUrl = getModelUrlFromRoute();
+const initialModelUrl = routeModelUrl || sharedModelUrl;
 
-if (sharedModelUrl) {
-  remoteUrlInput.value = sharedModelUrl;
-  loadFromUrl(sharedModelUrl);
+if (initialModelUrl) {
+  remoteUrlInput.value = initialModelUrl;
+  loadFromUrl(initialModelUrl, { syncRoute: false });
 } else {
   setStatus("No model loaded.");
 }
